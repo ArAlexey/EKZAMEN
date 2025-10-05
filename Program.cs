@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,49 +9,231 @@ namespace EKZAMEN
     public class WordS
     {
         public string Word { get; set; }
-        public string WordTranslate { get; set; }
+       
+        public List<string> Translations { get; set; }
 
         public WordS()
         {
             Word = string.Empty;
-            WordTranslate = string.Empty;
+            Translations = new List<string>();
         }
 
-        public WordS(string word, string wordTranslate)
+        public WordS(string word, string translation)
         {
             Word = word;
-            WordTranslate = wordTranslate;
+            Translations = new List<string> { translation };
         }
 
-        public static WordS AddWord()// Добавляем слово
+        public WordS(string word, List<string> translations)
+        {
+            Word = word;
+            Translations = translations;
+        }
+
+        public static WordS AddWord()// Добавление слова
         {
             Console.WriteLine("Введите слово: ");
             string word = Console.ReadLine();
-            Console.WriteLine("Введите перевод: ");
-            string wordtranslate = Console.ReadLine();
-            return new WordS { Word = word, WordTranslate = wordtranslate };
+
+            List<string> translations = new List<string>();
+            bool continueAddingTranslations = true;
+
+            while (continueAddingTranslations)
+            {
+                Console.WriteLine("Введите перевод: ");
+                string translation = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(translation))
+                {
+                    translations.Add(translation);
+                    Console.WriteLine("Перевод добавлен!");
+                }
+                else
+                {
+                    Console.WriteLine("Перевод не может быть пустым!");
+                }
+
+                if (translations.Count > 0)
+                {
+                    Console.WriteLine("Добавить еще один перевод? (y/n)");
+                    string answer = Console.ReadLine();
+                    continueAddingTranslations = answer.ToLower() == "y";
+                }
+            }
+
+            return new WordS { Word = word, Translations = translations };
         }
 
-        public void EditWord()//Редактируем слово
+        public void EditWord()//РЕДАКТИРОВАНИЕ СЛОВА
         {
             Console.WriteLine($"Текущее слово: {Word}");
             Console.WriteLine("Введите новое слово (или нажмите Enter чтобы оставить без изменений): ");
             string newWord = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(newWord))//IsNullOrWhiteSpace - проверяет пустая или нет строка
+            if (!string.IsNullOrWhiteSpace(newWord))//Если строка не пустая то слово обновится
             {
                 Word = newWord;
             }
 
-            Console.WriteLine($"Текущий перевод: {WordTranslate}");
-            Console.WriteLine("Введите новый перевод (или нажмите Enter чтобы оставить без изменений): ");
-            string newTranslation = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(newTranslation))//IsNullOrWhiteSpace - проверяет пустая или нет строка
+            Console.WriteLine("\nТекущие переводы:");
+            DisplayTranslations();
+
+            Console.WriteLine("\nВыберите действие с переводами:");
+            Console.WriteLine("1 - Добавить новый перевод");
+            Console.WriteLine("2 - Редактировать существующий перевод");
+            Console.WriteLine("3 - Удалить перевод");
+            Console.WriteLine("4 - Оставить без изменений");
+            Console.Write("Ваш выбор: ");
+
+            string choice = Console.ReadLine();
+            switch (choice)
             {
-                WordTranslate = newTranslation;
+                case "1":
+                    AddTranslation();
+                    break;
+                case "2":
+                    EditTranslation();
+                    break;
+                case "3":
+                    DeleteTranslation();
+                    break;
+                case "4":
+                    Console.WriteLine("Переводы остались без изменений.");
+                    break;
+                default:
+                    Console.WriteLine("Неверный выбор!");
+                    break;
             }
 
             Console.WriteLine("Слово успешно обновлено!");
         }
+
+        // МЕТОД ДОБАВЛЕНИЯ НОВОГО ПЕРЕВОДА
+        public void AddTranslation()
+        {
+            Console.WriteLine("Введите новый перевод: ");
+            string newTranslation = Console.ReadLine();// строка нового превода
+
+            if (!string.IsNullOrWhiteSpace(newTranslation))//если строкаа не пустая
+            {
+                if (Translations.Any(t => t.Equals(newTranslation, StringComparison.OrdinalIgnoreCase)))//проверка на совпадения
+                {
+                    Console.WriteLine("Такой перевод уже существует!");
+                }
+                else
+                {
+                    Translations.Add(newTranslation);
+                    Console.WriteLine("Новый перевод добавлен!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Перевод не может быть пустым!");
+            }
+        }
+
+        // МЕТОД РЕДАКТИРОВАНИЯ СУЩЕСТВУЮЩЕГО ПЕРЕВОДА
+        public void EditTranslation()
+        {
+            if (Translations.Count == 0)
+            {
+                Console.WriteLine("Нет переводов для редактирования.");
+                return;
+            }
+
+            Console.WriteLine("\nТекущие переводы:");
+            for (int i = 0; i < Translations.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {Translations[i]}");
+            }
+
+            Console.Write("Введите номер перевода для редактирования: ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Translations.Count)//строку сразу преобразуем в число и сравниваем пределы
+            {
+                Console.WriteLine($"Текущий перевод: {Translations[index - 1]}");
+                Console.WriteLine("Введите новый перевод: ");
+                string newTranslation = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(newTranslation))
+                {
+                    Translations[index - 1] = newTranslation;
+                    Console.WriteLine("Перевод обновлен!");
+                }
+                else
+                {
+                    Console.WriteLine("Перевод не может быть пустым!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Неверный номер перевода!");
+            }
+        }
+
+        // МЕТОД УДАЛЕНИЯ ПЕРЕВОДА
+        public void DeleteTranslation()
+        {
+            if (Translations.Count == 0)
+            {
+                Console.WriteLine("Нет переводов для удаления.");
+                return;
+            }
+
+            if (Translations.Count == 1)
+            {
+                Console.WriteLine("Нельзя удалить единственный перевод слова!");
+                return;
+            }
+
+            Console.WriteLine("\nТекущие переводы:");
+            for (int i = 0; i < Translations.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {Translations[i]}");
+            }
+
+            Console.Write("Введите номер перевода для удаления: ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Translations.Count)
+            {
+                Console.WriteLine($"Вы уверены, что хотите удалить перевод: '{Translations[index - 1]}'? (y/n)");
+                string confirm = Console.ReadLine();
+
+                if (confirm.ToLower() == "y")
+                {
+                    Translations.RemoveAt(index - 1);
+                    Console.WriteLine("Перевод удален!");
+                }
+                else
+                {
+                    Console.WriteLine("Удаление отменено.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Неверный номер перевода!");
+            }
+        }
+
+        // МЕТОД ДЛЯ ОТОБРАЖЕНИЯ ВСЕХ ПЕРЕВОДОВ
+        public void DisplayTranslations()
+        {
+            if (Translations.Count == 0)
+            {
+                Console.WriteLine("  Нет переводов");
+                return;
+            }
+
+            for (int i = 0; i < Translations.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {Translations[i]}");
+            }
+        }
+
+        // МЕТОД ДЛЯ ПОЛУЧЕНИЯ ПЕРЕВОДОВ В ВИДЕ СТРОКИ
+        public string GetTranslationsString()// БУДЕТ ИСПОЛЬЗОВАТЬСЯ ДЛЯ ОТОБРАЖЕНИЯ ПЕРЕВОДОВ
+        {
+            return string.Join(", ", Translations);
+        }
+
+
     }
 
     public class Dictionary
@@ -84,30 +266,31 @@ namespace EKZAMEN
             bool continueAdding = true;// Флаг добавления слов
             int wordsAdded = 0;//Количество добавленных слов
 
-            while (continueAdding)//Цикл выполняется пока добавление слов true
+            while (continueAdding)
             {
                 Console.WriteLine("\nВведите новое слово:");
                 string word = Console.ReadLine();
 
-                if (string.IsNullOrWhiteSpace(word))// Проверка на пустую строку
+                if (string.IsNullOrWhiteSpace(word))
                 {
                     Console.WriteLine("Слово не может быть пустым!");
                     continue;
                 }
-                
-                if (Words.Any(w => w.Word.Equals(word, StringComparison.OrdinalIgnoreCase)))// Проверка на существование слова word
-                {
-                    Console.WriteLine($"Слово '{word}' уже существует в словаре. Хотите заменить его? (y/n)");
-                    string replaceAnswer = Console.ReadLine();
 
-                    if (replaceAnswer.ToLower() == "y")// .ToLower преобразует введенные символы в нижний регистр
+                var existingWord = Words.FirstOrDefault(w => w.Word.Equals(word, StringComparison.OrdinalIgnoreCase));
+                if (existingWord != null)
+                {
+                    Console.WriteLine($"Слово '{word}' уже существует в словаре.");
+                    Console.WriteLine("Текущие переводы:");
+                    existingWord.DisplayTranslations();
+
+                    Console.WriteLine("Хотите добавить дополнительные переводы к существующему слову? (y/n)");
+                    string addMoreAnswer = Console.ReadLine();
+
+                    if (addMoreAnswer.ToLower() == "y")
                     {
-                        var existingWord = Words.First(w => w.Word.Equals(word, StringComparison.OrdinalIgnoreCase));//ищем слово word на совпадение без учета регистра символов
-                        Console.WriteLine($"Текущий перевод: {existingWord.WordTranslate}");
-                        Console.WriteLine("Введите новый перевод:");
-                        string newTranslation = Console.ReadLine();
-                        existingWord.WordTranslate = newTranslation;
-                        Console.WriteLine("Перевод обновлен!");
+                        existingWord.AddTranslation();
+                        Console.WriteLine("Дополнительный перевод добавлен к существующему слову!");
                     }
                     else
                     {
@@ -116,23 +299,36 @@ namespace EKZAMEN
                 }
                 else
                 {
-                    Console.WriteLine("Введите перевод:");
-                    string translation = Console.ReadLine();
+                    List<string> translations = new List<string>();
+                    bool continueAddingTranslations = true;
 
-                    if (string.IsNullOrWhiteSpace(translation))
+                    while (continueAddingTranslations)
                     {
-                        Console.WriteLine("Перевод не может быть пустым!");
-                        continue;
+                        Console.WriteLine("Введите перевод:");
+                        string translation = Console.ReadLine();
+
+                        if (string.IsNullOrWhiteSpace(translation))
+                        {
+                            Console.WriteLine("Перевод не может быть пустым!");
+                            continue;
+                        }
+
+                        translations.Add(translation);
+                        Console.WriteLine("Перевод добавлен!");
+
+                        Console.WriteLine("Добавить еще один перевод? (y/n)");
+                        string answe = Console.ReadLine();
+                        continueAddingTranslations = answe.ToLower() == "y";
                     }
 
-                    Words.Add(new WordS(word, translation));
+                    Words.Add(new WordS(word, translations));
                     wordsAdded++;
                     Console.WriteLine("Слово успешно добавлено!");
                 }
 
                 Console.WriteLine("\nДобавить еще одно слово? (y/n)");
                 string answer = Console.ReadLine();
-                continueAdding = answer.ToLower() == "y";//Если выбрали y, то continueAdding = true и цыкл продолжиться
+                continueAdding = answer.ToLower() == "y";
             }
 
             Console.WriteLine($"\nДобавлено новых слов: {wordsAdded}");
@@ -153,7 +349,7 @@ namespace EKZAMEN
             Console.WriteLine("Текущие слова в словаре:");
             for (int i = 0; i < Words.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].WordTranslate}");
+                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].GetTranslationsString()}");
             }
 
             Console.WriteLine("\nВыберите способ поиска слова для редактирования:");
@@ -167,40 +363,38 @@ namespace EKZAMEN
             switch (choice)
             {
                 case "1":
-                Console.Write("Введите номер слова: ");
-                    if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Words.Count)//Проверяем вводимое число, в рамках количества слов всловаре или нет
-                    {                                                                              // преобразовывает строку в число и записывает в index если успешно.
-                        wordToEdit = Words[index - 1];                                             //полсе уже сравнивает это число 
+                    Console.Write("Введите номер слова: ");
+                    if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Words.Count)
+                    {
+                        wordToEdit = Words[index - 1];
                     }
                     else
                     {
                         Console.WriteLine("Неверный номер слова!");
                         return;
                     }
-                break;
+                    break;
 
                 case "2":
                     Console.Write("Введите слово для поиска: ");
                     string searchTerm = Console.ReadLine();
-                    wordToEdit = Words.FirstOrDefault(w => w.Word.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));//находит первый элемент коллекции, удовлетворяющий условию,
-                                                                                                                          //или возвращает значение по умолчанию, если элемент не найден.
+                    wordToEdit = Words.FirstOrDefault(w => w.Word.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
 
                     if (wordToEdit == null)
                     {
                         Console.WriteLine($"Слово '{searchTerm}' не найдено в словаре.");
                         return;
                     }
-                break;
+                    break;
 
                 default:
-                Console.WriteLine("Неверный выбор!");
-                return;
+                    Console.WriteLine("Неверный выбор!");
+                    return;
             }
 
-            // Редактирование выбранного слова
             if (wordToEdit != null)
             {
-                Console.WriteLine($"\nРедактирование слова: {wordToEdit.Word} - {wordToEdit.WordTranslate}");
+                Console.WriteLine($"\nРедактирование слова: {wordToEdit.Word} - {wordToEdit.GetTranslationsString()}");
                 wordToEdit.EditWord();
             }
         }
@@ -219,7 +413,7 @@ namespace EKZAMEN
             Console.WriteLine("Текущие слова в словаре:");
             for (int i = 0; i < Words.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].WordTranslate}");
+                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].GetTranslationsString()}");
             }
 
             Console.WriteLine("\nВыберите способ поиска слова для удаления:");
@@ -234,9 +428,9 @@ namespace EKZAMEN
             {
                 case "1":
                     Console.Write("Введите номер слова для удаления: ");
-                    if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Words.Count)//Преобразуем введеные символы в число и сравниваем его
+                    if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= Words.Count)
                     {
-                        wordToDelete = Words[index - 1];// удаляем по индексу
+                        wordToDelete = Words[index - 1];
                     }
                     else
                     {
@@ -248,7 +442,7 @@ namespace EKZAMEN
                 case "2":
                     Console.Write("Введите слово для удаления: ");
                     string searchTerm = Console.ReadLine();
-                    wordToDelete = Words.FirstOrDefault(w => w.Word.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));//сравниваем строки без учета регистра
+                    wordToDelete = Words.FirstOrDefault(w => w.Word.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
 
                     if (wordToDelete == null)
                     {
@@ -261,15 +455,15 @@ namespace EKZAMEN
                     Console.WriteLine("Неверный выбор!");
                     return;
             }
-            // Подтверждение удаления
+
             if (wordToDelete != null)
             {
-                Console.WriteLine($"\nВы уверены, что хотите удалить слово: {wordToDelete.Word} - {wordToDelete.WordTranslate}? (y/n)");
+                Console.WriteLine($"\nВы уверены, что хотите удалить слово: {wordToDelete.Word} - {wordToDelete.GetTranslationsString()}? (y/n)");
                 string confirm = Console.ReadLine();
 
                 if (confirm.ToLower() == "y")
                 {
-                    Words.Remove(wordToDelete);//Стандартный метод
+                    Words.Remove(wordToDelete);
                     Console.WriteLine("Слово успешно удалено!");
                 }
                 else
@@ -290,7 +484,7 @@ namespace EKZAMEN
             Console.WriteLine("Слова:");
             for (int i = 0; i < Words.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].WordTranslate}");
+                Console.WriteLine($"{i + 1}. {Words[i].Word} - {Words[i].GetTranslationsString()}");
             }
             Console.WriteLine($"Всего слов: {Words.Count}");
         }
@@ -315,7 +509,7 @@ namespace EKZAMEN
 
             // Поиск по слову и переводу (без учета регистра)
             var foundWords = Words.Where(w => w.Word.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0 
-            || w.WordTranslate.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            || w.Translations.Any(t => t.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)).ToList();
             //Words.Where фильтрует коллекцию Words по условию, когда в w.Word ищется запрос searchTerm на любое совпадение при котором возвращается либо 0, либо >0
             //если такого совпадения не случается, то возвращается -1. Что означает что совпадений нет.
             if (foundWords.Count == 0)
@@ -329,7 +523,7 @@ namespace EKZAMEN
 
                 foreach (var word in foundWords)
                 {
-                    Console.WriteLine($"{word.Word} - {word.WordTranslate}");
+                    Console.WriteLine($"{word.Word} - {word.GetTranslationsString()}");
                 }
                 Console.WriteLine(new string('-', 40));
             }
@@ -351,7 +545,7 @@ namespace EKZAMEN
 
                     foreach (var word in Words)
                     {
-                        writer.WriteLine($"{word.Word} - {word.WordTranslate}");
+                        writer.WriteLine($"{word.Word} - {word.GetTranslationsString()}");
                     }
 
                     writer.WriteLine(new string('-', 40));
