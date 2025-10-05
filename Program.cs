@@ -10,7 +10,7 @@ namespace EKZAMEN
     {
         public string Word { get; set; }
        
-        public List<string> Translations { get; set; }
+        public List<string> Translations { get; set; }//Добавляем список переводов
 
         public WordS()
         {
@@ -21,10 +21,10 @@ namespace EKZAMEN
         public WordS(string word, string translation)
         {
             Word = word;
-            Translations = new List<string> { translation };
+            Translations = new List<string> { translation };//один перевод
         }
 
-        public WordS(string word, List<string> translations)
+        public WordS(string word, List<string> translations)//несколько переводов
         {
             Word = word;
             Translations = translations;
@@ -35,17 +35,17 @@ namespace EKZAMEN
             Console.WriteLine("Введите слово: ");
             string word = Console.ReadLine();
 
-            List<string> translations = new List<string>();
-            bool continueAddingTranslations = true;
+            List<string> translations = new List<string>();// список переводов
+            bool continueAddingTranslations = true;//флаг на добавление переводов
 
-            while (continueAddingTranslations)
+            while (continueAddingTranslations)//пока  true - будет работать добавление переводов
             {
                 Console.WriteLine("Введите перевод: ");
                 string translation = Console.ReadLine();
 
-                if (!string.IsNullOrWhiteSpace(translation))
+                if (!string.IsNullOrWhiteSpace(translation))//проверка на пустую строку
                 {
-                    translations.Add(translation);
+                    translations.Add(translation);//если не пустая строка, то добавляем
                     Console.WriteLine("Перевод добавлен!");
                 }
                 else
@@ -57,7 +57,7 @@ namespace EKZAMEN
                 {
                     Console.WriteLine("Добавить еще один перевод? (y/n)");
                     string answer = Console.ReadLine();
-                    continueAddingTranslations = answer.ToLower() == "y";
+                    continueAddingTranslations = answer.ToLower() == "y";//.ToLower преобразует в нижний регистр
                 }
             }
 
@@ -115,7 +115,7 @@ namespace EKZAMEN
 
             if (!string.IsNullOrWhiteSpace(newTranslation))//если строкаа не пустая
             {
-                if (Translations.Any(t => t.Equals(newTranslation, StringComparison.OrdinalIgnoreCase)))//проверка на совпадения
+                if (Translations.Any(t => t.Equals(newTranslation, StringComparison.OrdinalIgnoreCase)))//Any проверка на совпадения, Equals - условия проверки
                 {
                     Console.WriteLine("Такой перевод уже существует!");
                 }
@@ -198,7 +198,7 @@ namespace EKZAMEN
 
                 if (confirm.ToLower() == "y")
                 {
-                    Translations.RemoveAt(index - 1);
+                    Translations.RemoveAt(index - 1);//удаляем перевод
                     Console.WriteLine("Перевод удален!");
                 }
                 else
@@ -228,7 +228,7 @@ namespace EKZAMEN
         }
 
         // МЕТОД ДЛЯ ПОЛУЧЕНИЯ ПЕРЕВОДОВ В ВИДЕ СТРОКИ
-        public string GetTranslationsString()// БУДЕТ ИСПОЛЬЗОВАТЬСЯ ДЛЯ ОТОБРАЖЕНИЯ ПЕРЕВОДОВ
+        public string GetTranslationsString()// Будет использоваться в словах, где несколько переводов.
         {
             return string.Join(", ", Translations);
         }
@@ -379,7 +379,7 @@ namespace EKZAMEN
                     Console.Write("Введите слово для поиска: ");
                     string searchTerm = Console.ReadLine();
                     wordToEdit = Words.FirstOrDefault(w => w.Word.Equals(searchTerm, StringComparison.OrdinalIgnoreCase));
-
+                    //FirstOrDefault - возвращает первый элемент последовательности, удовлетворяющий условию
                     if (wordToEdit == null)
                     {
                         Console.WriteLine($"Слово '{searchTerm}' не найдено в словаре.");
